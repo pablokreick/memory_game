@@ -1,35 +1,37 @@
 import pygame
-import lib.constants as constant
-import lib.classes as c
+import lib.Var as Var
+import lib.Color as Color
+import lib.Core as c
 from os.path import join
-import random
 
 
 def menu(display, clock):
-    dt = clock.tick(30) / 1000
     repeat = True
     play = False
-    background = pygame.image.load(join("images", "main.png")).convert_alpha()
-    btn_play = c.Button("btn_play.png", constant.WIDTH // 2, constant.HEIGHT // 2)
-    btn_quit = c.Button("btn_quit.png", constant.WIDTH // 2, constant.HEIGHT // 2 + 120)
-    lista = pygame.sprite.Group()
-    lista.add(btn_play)
-    lista.add(btn_quit)
-    display.fill("green")
+    background = pygame.image.load(join("sprite", "main.png")).convert_alpha()  # 👈 cambiado a sprite/
+
+    # Botones
+    btn_play = c.Button("btn_play.png", Var.WIDTH // 2, Var.HEIGHT // 2)
+    btn_quit = c.Button("btn_quit.png", Var.WIDTH // 2, Var.HEIGHT // 2 + 120)
+    lista = pygame.sprite.Group(btn_play, btn_quit)
+
     while repeat:
+        clock.tick(Var.FPS)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 play = False
                 repeat = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if btn_play.rect.collidepoint(event.pos):
+                if btn_play.get_rect().collidepoint(event.pos):
                     play = True
                     repeat = False
-                if btn_quit.rect.collidepoint(event.pos):
+                if btn_quit.get_rect().collidepoint(event.pos):
                     play = False
                     repeat = False
 
-        lista.update()
+        # Dibujo
+        display.fill(Color.GREEN)
         display.blit(background, (0, 0))
         lista.draw(display)
         pygame.display.update()
@@ -38,36 +40,38 @@ def menu(display, clock):
 
 
 def final_menu(display, clock, winner):
-    dt = clock.tick(30) / 1000
     repeat = True
     play = False
     background = pygame.image.load(
-        join("images", "winner.png" if winner else "looser.png")
+        join("sprite", "winner.png" if winner else "looser.png")   # 👈 cambiado a sprite/
     ).convert_alpha()
+
+    # Botones
     btn_play = c.Button(
         "btn_again_winner.png" if winner else "btn_again.png",
-        constant.WIDTH // 2,
-        constant.HEIGHT // 2,
+        Var.WIDTH // 2,
+        Var.HEIGHT // 2,
     )
-    btn_quit = c.Button("btn_quit.png", constant.WIDTH // 2, constant.HEIGHT // 2 + 120)
-    lista = pygame.sprite.Group()
-    lista.add(btn_play)
-    lista.add(btn_quit)
-    display.fill("green")
+    btn_quit = c.Button("btn_quit.png", Var.WIDTH // 2, Var.HEIGHT // 2 + 120)
+    lista = pygame.sprite.Group(btn_play, btn_quit)
+
     while repeat:
+        clock.tick(Var.FPS)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 play = False
                 repeat = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if btn_play.rect.collidepoint(event.pos):
+                if btn_play.get_rect().collidepoint(event.pos):
                     play = True
                     repeat = False
-                if btn_quit.rect.collidepoint(event.pos):
+                if btn_quit.get_rect().collidepoint(event.pos):
                     play = False
                     repeat = False
 
-        lista.update()
+        # Dibujo
+        display.fill(Color.GREEN)
         display.blit(background, (0, 0))
         lista.draw(display)
         pygame.display.update()
