@@ -1,4 +1,5 @@
 import pygame
+import math
 import lib.Var as Var
 import lib.Color as Color
 import lib.Core as c
@@ -81,5 +82,34 @@ def final_menu(display, winner):
     return play
 
 
-# En cada partida se reinicia el patrón, las vidas, el array del player, se incrementa el nivel en 1.
-# Se puede poner una puntuación para el jugador.
+def pattern_menu(display, pattern):
+    play = True
+    time = pygame.time.get_ticks()
+    repeat = True
+    background = pygame.image.load(join("sprite", "pattern.png")).convert_alpha()
+    numbers = [
+        pygame.image.load(join("sprite", f"{i}.png")).convert_alpha()
+        for i in range(1, 4)
+    ]
+    lista = pygame.sprite.Group(ball for ball in pattern)
+    while repeat:
+        current_time = pygame.time.get_ticks()
+        seconds = (current_time - time) // 1000
+        print(seconds)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                repeat = False
+                play = False
+        if seconds >= Var.COUNTDOWN:
+            repeat = False
+        else:
+            number_surf = numbers[2 - int(seconds)]
+            number_rect = number_surf.get_rect(
+                center=(Var.WIDTH // 2, Var.HEIGHT // 2 + 150)
+            )
+            display.blit(background, (0, 0))
+            display.blit(number_surf, number_rect)
+            lista.draw(display)
+            pygame.display.update()
+
+    return play

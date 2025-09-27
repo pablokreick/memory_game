@@ -49,12 +49,19 @@ def main():
         "yellow": pygame.image.load(join("sprite", "ball-yellow.png")).convert_alpha(),
     }
 
+    numbers = [
+        pygame.image.load(join("sprite", f"{i}.png")).convert_alpha() for i in range(10)
+    ]
+
+    level_image = pygame.image.load(join("sprite", "nivel.png")).convert_alpha()
+    level_rect = level_image.get_rect(topright=(Var.WIDTH - 100, 70))
+
     top_menu = pygame.image.load(join("sprite", "menu-superior.png"))
     top_menu_rect = top_menu.get_rect(
         center=(Var.WIDTH // 2, top_menu.get_height() // 2)
     )
     life = pygame.image.load(join("sprite", "life.png")).convert_alpha()
-    background = pygame.image.load(join("sprite", "background.jpg"))
+    background = pygame.image.load(join("sprite", "background.png"))
     background_rect = background.get_rect(topleft=(0, 0))
 
     # Función auxiliar para elegir bola
@@ -89,7 +96,10 @@ def main():
         all_sprites.empty()
         ball_sprites.empty()
         player_sprite.empty()
-
+        level_number_image = numbers[level]
+        level_number_rect = level_number_image.get_rect(
+            topleft=(Var.WIDTH - level_number_image.get_width() - 20, 70)
+        )
         balls = []
         pattern = []
         player.reset_colors()
@@ -100,9 +110,12 @@ def main():
         for _ in range(balls_quantity):
             color = random.choice(list(ball_images.keys()))
             pattern.append(color)
-            balls.append(create_ball(color))
 
+        play = f.pattern_menu(display, balls)
         print(pattern)
+
+        for color in pattern:
+            balls.append(create_ball(color))
 
         in_game = True
         while in_game and play:
@@ -157,6 +170,8 @@ def main():
                             # Pone el menú
                             play = f.final_menu(display, False)
                             in_game = False
+                            balls_quantity = 2
+                            level = 1
 
             # Actualizar y dibujar
             all_sprites.update(dt)
@@ -165,6 +180,8 @@ def main():
             display.blit(top_menu, top_menu_rect)
             show_balls(player.get_colors())
             show_lifes()
+            display.blit(level_image, level_rect)
+            display.blit(level_number_image, level_number_rect)
             pygame.display.update()
 
     pygame.quit()
