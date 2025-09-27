@@ -5,10 +5,12 @@ import lib.Core as c
 from os.path import join
 
 
-def menu(display, clock):
+def menu(display):
     repeat = True
     play = False
-    background = pygame.image.load(join("sprite", "main.png")).convert_alpha()  # 👈 cambiado a sprite/
+    background = pygame.image.load(
+        join("sprite", "main.png")
+    ).convert_alpha()  # 👈 cambiado a sprite/
 
     # Botones
     btn_play = c.Button("btn_play.png", Var.WIDTH // 2, Var.HEIGHT // 2)
@@ -16,7 +18,6 @@ def menu(display, clock):
     lista = pygame.sprite.Group(btn_play, btn_quit)
 
     while repeat:
-        clock.tick(Var.FPS)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -39,11 +40,13 @@ def menu(display, clock):
     return play
 
 
-def final_menu(display, clock, winner):
+def final_menu(display, winner):
     repeat = True
     play = False
     background = pygame.image.load(
-        join("sprite", "winner.png" if winner else "looser.png")   # 👈 cambiado a sprite/
+        join(
+            "sprite", "winner.png" if winner else "looser.png"
+        )  # 👈 cambiado a sprite/
     ).convert_alpha()
 
     # Botones
@@ -56,7 +59,6 @@ def final_menu(display, clock, winner):
     lista = pygame.sprite.Group(btn_play, btn_quit)
 
     while repeat:
-        clock.tick(Var.FPS)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -77,3 +79,7 @@ def final_menu(display, clock, winner):
         pygame.display.update()
 
     return play
+
+
+# En cada partida se reinicia el patrón, las vidas, el array del player, se incrementa el nivel en 1.
+# Se puede poner una puntuación para el jugador.

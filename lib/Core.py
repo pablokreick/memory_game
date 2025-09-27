@@ -17,7 +17,9 @@ class Player(pygame.sprite.Sprite):
         super().__init__(groups)
         # 👇 ahora carga car.png desde sprite/
         self.__image = pygame.image.load(join("sprite", "car.png")).convert_alpha()
-        self.__rect = self.__image.get_rect(center=(Var.WIDTH // 2, Var.HEIGHT // 2))
+        self.__rect = self.__image.get_rect(
+            center=(Var.WIDTH // 2, Var.HEIGHT - self.__image.get_height())
+        )
         self.__direction = pygame.math.Vector2(0, 0)
         self.__speed = Var.INITIAL_SPEED
         self.__colors = []
@@ -27,8 +29,14 @@ class Player(pygame.sprite.Sprite):
     def get_image(self):
         return self.__image
 
+    def get_image_height(self):
+        return self.__image.get_height()
+
     def get_rect(self):
         return self.__rect
+
+    def set_rect_pos(self, pos):
+        self.__rect.center = pos
 
     def get_colors(self):
         return self.__colors
@@ -36,11 +44,17 @@ class Player(pygame.sprite.Sprite):
     def add_color(self, ball):
         self.__colors.append(ball)
 
+    def reset_colors(self):
+        self.__colors = []
+
     def get_lifes(self):
         return self.__lifes
 
     def lose_life(self):
         self.__lifes -= 1
+
+    def reset_lifes(self):
+        self.__lifes = 3
 
     # Propiedades públicas requeridas por pygame.sprite.Group
     @property
