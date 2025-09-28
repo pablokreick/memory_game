@@ -73,8 +73,6 @@ def final_menu(display, winner):
                     play = False
                     repeat = False
 
-        # Dibujo
-        display.fill(Color.GREEN)
         display.blit(background, (0, 0))
         lista.draw(display)
         pygame.display.update()
@@ -95,7 +93,6 @@ def pattern_menu(display, pattern):
     while repeat:
         current_time = pygame.time.get_ticks()
         seconds = (current_time - time) // 1000
-        print(seconds)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 repeat = False
@@ -107,7 +104,16 @@ def pattern_menu(display, pattern):
             number_rect = number_surf.get_rect(
                 center=(Var.WIDTH // 2, Var.HEIGHT // 2 + 150)
             )
+            spacing = 50
+            total_width = len(pattern) * spacing
+            start_x = Var.WIDTH // 2 - total_width // 2 + spacing // 2
+            y = Var.HEIGHT // 2 - 50
+
             display.blit(background, (0, 0))
+            for i, ball in enumerate(pattern):
+                x = start_x + i * spacing
+                # display.blit(ball.get_image(), ball.get_image().get_rect(center=(x, y)))
+                ball.set_position((x, y))
             display.blit(number_surf, number_rect)
             lista.draw(display)
             pygame.display.update()
