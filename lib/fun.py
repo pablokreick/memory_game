@@ -6,6 +6,10 @@ import lib.Core as c
 from os.path import join
 
 
+def transform_int_to_list(score):
+    return list(str(score))
+
+
 def menu(display):
     repeat = True
     play = False

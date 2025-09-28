@@ -1,7 +1,7 @@
 import pygame
 import sys
 from os.path import join
-from lib.Core import Player, Ball, Game, Interface
+from lib.Core import Player, Game, Interface
 
 # Nuestros módulos
 import lib.Var as Var
@@ -47,6 +47,9 @@ def main():
     background = pygame.image.load(join("sprite", "background.png"))
     background_rect = background.get_rect(topleft=(0, 0))
 
+    score_image = pygame.image.load(join("sprite", "puntos.png")).convert_alpha()
+    score_rect = score_image.get_rect(topleft=(20, 70))
+
     game = Game()
     interface = Interface(display)
     play = f.menu(display)
@@ -58,18 +61,18 @@ def main():
     static_surface.blit(background, background_rect)
     static_surface.blit(top_menu, top_menu_rect)
     static_surface.blit(level_image, level_rect)
+    player = Player((all_sprites, player_sprite))
 
     # ---------------------------------------------------------------------------- #
     #                              WHILE DEL PROGRAMA                              #
     # ---------------------------------------------------------------------------- #
     while play:
-        interface.reset_sprites((all_sprites, ball_sprites, player_sprite))
+        player.get_colors().clear()
         level_number_image = numbers[game.get_level()]
         level_number_rect = level_number_image.get_rect(
             topleft=(Var.WIDTH - level_number_image.get_width() - 20, 70)
         )
         static_surface.blit(level_number_image, level_number_rect)
-        player = Player((all_sprites, player_sprite))
         game.make_pattern((all_sprites, ball_sprites))
         play = f.pattern_menu(display, game.get_balls())
         game.place_elements_in_position(player)
@@ -85,6 +88,8 @@ def main():
                     play = False
                     in_game = False
 
+            score_list = f.transform_int_to_list(player.get_score())
+            print(player.get_score())
             # ---------------------------------------------------------------------------- #
             #                                  COLISIONES                                  #
             # ---------------------------------------------------------------------------- #
@@ -97,6 +102,8 @@ def main():
                         player.catch_ball(ball)
                         sound_good.play()
                         ball.kill()
+                        player.add_score(10)
+                        # level_number_image = numbers[game.get_level()]
 
                         if player.has_completed_pattern(game):
                             sound_win.play()
@@ -108,12 +115,14 @@ def main():
                         ball.move_to_random_position()
                         sound_wrong.play()
                         player.lose_life()
+                        player.add_score(-1)
                         if player.has_no_lives():
                             sound_fail.play()
                             play = f.final_menu(display, False)
                             if play:
                                 in_game = False
-                                game.restart()
+                                game.restart(ball_sprites)
+                                player.restart()
 
             # ---------------------------------------------------------------------------- #
             #                                DISPLAY SPRITES                               #
@@ -128,6 +137,11 @@ def main():
             interface.show_lives(player)
             display.blit(level_image, level_rect)
             display.blit(level_number_image, level_number_rect)
+            display.blit(score_image, score_rect)
+            for value in score_list:
+                display.blit(
+                    numbers[int(value)], (300 + score_list.index(value) * 30, 70)
+                )
             pygame.display.update()
 
     pygame.quit()

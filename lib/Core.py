@@ -45,10 +45,12 @@ class Game(pygame.sprite.Sprite):
     def reset_level(self):
         self.__level = 1
 
-    def restart(self):
+    def restart(self, balls):
         self.reset_level()
         self.reset_balls_quantity()
-        Var.BALL_SPEED = 200
+        Var.BALL_SPEED = 100
+        for ball in balls:
+            ball.kill()
 
     def reset_pattern(self):
         self.__pattern = []
@@ -160,6 +162,7 @@ class Player(pygame.sprite.Sprite):
     __colors = None
     __lives = None
     __life_image = None
+    __score = None
 
     def __init__(self, groups):
         super().__init__(groups)
@@ -172,6 +175,7 @@ class Player(pygame.sprite.Sprite):
         self.__speed = Var.INITIAL_SPEED
         self.__colors = []
         self.__lives = 3
+        self.__score = 0
         self.__life_image = pygame.image.load(
             join("sprite", "life.png")
         ).convert_alpha()
@@ -179,6 +183,19 @@ class Player(pygame.sprite.Sprite):
     # Métodos de acceso y modificación
     def get_image(self):
         return self.__image
+
+    def get_score(self):
+        return self.__score
+
+    def add_score(self, points):
+        self.__score += points
+        if self.__score < 0:
+            self.__score = 0
+
+    def restart(self):
+        self.__score = 0
+        self.__colors = []
+        self.__lives = 3
 
     def get_image_height(self):
         return self.__image.get_height()
