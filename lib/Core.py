@@ -82,8 +82,17 @@ class Game(pygame.sprite.Sprite):
     def get_balls(self):
         return self.__balls
 
+    def check_collisions(self, objetive, sprite):
+        return pygame.sprite.spritecollide(
+            objetive, sprite, False, pygame.sprite.collide_mask
+        )
+
     def add_to_pattern(self, color):
         self.__pattern.append(color)
+
+    def place_elements_in_position(self, player):
+        player.spawn_to_bottom()
+        self.set_balls_in_position()
 
     def get__balls_images(self):
         return self.get__balls_images
@@ -123,21 +132,6 @@ class Interface:
 
     def get_display(self):
         return self.__display
-
-    def show_surface(self, surface, pos):
-        self.__display.blit(surface, surface.get_rect(center=pos))
-
-    def show_top_menu(self, top_menu, top_menu_rect):
-        self.__display.blit(top_menu, top_menu_rect)
-
-    def show_level(
-        self, level_image, level_rect, level_number_image, level_number_rect
-    ):
-        self.__display.blit(level_image, level_rect)
-        self.__display.blit(level_number_image, level_number_rect)
-
-    def show_background(self, background, background_rect):
-        self.__display.blit(background, background_rect)
 
     def reset_sprites(self, sprites):
         for sprite in sprites:

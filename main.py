@@ -51,6 +51,14 @@ def main():
     interface = Interface(display)
     play = f.menu(display)
 
+    # Crear la superficie de estáticos
+    static_surface = pygame.Surface((Var.WIDTH, Var.HEIGHT), pygame.SRCALPHA)
+
+    # Dibujar todo sobre esa superficie solo una vez
+    static_surface.blit(background, background_rect)
+    static_surface.blit(top_menu, top_menu_rect)
+    static_surface.blit(level_image, level_rect)
+
     # ---------------------------------------------------------------------------- #
     #                              WHILE DEL PROGRAMA                              #
     # ---------------------------------------------------------------------------- #
@@ -60,11 +68,11 @@ def main():
         level_number_rect = level_number_image.get_rect(
             topleft=(Var.WIDTH - level_number_image.get_width() - 20, 70)
         )
+        static_surface.blit(level_number_image, level_number_rect)
         player = Player((all_sprites, player_sprite))
         game.make_pattern((all_sprites, ball_sprites))
         play = f.pattern_menu(display, game.get_balls())
-        player.spawn_to_bottom()
-        game.set_balls_in_position()
+        game.place_elements_in_position(player)
         in_game = True
         # ---------------------------------------------------------------------------- #
         #                                WHILE DEL JUEGO                               #
@@ -80,9 +88,7 @@ def main():
             # ---------------------------------------------------------------------------- #
             #                                  COLISIONES                                  #
             # ---------------------------------------------------------------------------- #
-            collided_ball = pygame.sprite.spritecollide(
-                player, ball_sprites, False, pygame.sprite.collide_mask
-            )
+            collided_ball = game.check_collisions(player, ball_sprites)
 
             if collided_ball:
                 for ball in collided_ball:
@@ -90,7 +96,7 @@ def main():
                     if ball.is_color(game.get_pattern_color(index)):
                         player.catch_ball(ball)
                         sound_good.play()
-                        interface.remove_from_sprites(ball, (all_sprites, ball_sprites))
+                        ball.kill()
 
                         if player.has_completed_pattern(game):
                             sound_win.play()
@@ -113,14 +119,15 @@ def main():
             #                                DISPLAY SPRITES                               #
             # ---------------------------------------------------------------------------- #
             all_sprites.update(dt)
-            interface.show_background(background, background_rect)
+            display.blit(background, background_rect)
+            display.blit(top_menu, top_menu_rect)
+            display.blit(background, background_rect)
+            display.blit(top_menu, top_menu_rect)
             all_sprites.draw(display)
-            interface.show_top_menu(top_menu, top_menu_rect)
             interface.show_balls(player.get_colors())
             interface.show_lives(player)
-            interface.show_level(
-                level_image, level_rect, level_number_image, level_number_rect
-            )
+            display.blit(level_image, level_rect)
+            display.blit(level_number_image, level_number_rect)
             pygame.display.update()
 
     pygame.quit()
