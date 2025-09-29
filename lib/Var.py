@@ -2,7 +2,7 @@ import lib.Color as Color
 
 WIDTH = 1280
 HEIGHT = 720
-FPS = 30
+FPS = 20
 TITLE = "Memory Game"
 TOP_MARGIN = 60
 INITIAL_SPEED = 300

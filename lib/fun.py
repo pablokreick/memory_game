@@ -6,10 +6,6 @@ import lib.Core as c
 from os.path import join
 
 
-def transform_int_to_list(score):
-    return list(str(score))
-
-
 def menu(display):
     repeat = True
     play = False
@@ -23,15 +19,16 @@ def menu(display):
     lista = pygame.sprite.Group(btn_play, btn_quit)
 
     while repeat:
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 play = False
                 repeat = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if btn_play.get_rect().collidepoint(event.pos):
+                if btn_play.rect.collidepoint(event.pos):   # 👈 ahora usa la property
                     play = True
                     repeat = False
-                if btn_quit.get_rect().collidepoint(event.pos):
+                if btn_quit.rect.collidepoint(event.pos):   # 👈 ahora usa la property
                     play = False
                     repeat = False
 
@@ -82,7 +79,9 @@ def final_menu(display, winner):
     repeat = True
     play = False
     background = pygame.image.load(
-        join("sprite", "winner.png" if winner else "looser.png")
+        join(
+            "sprite", "winner.png" if winner else "looser.png"
+        )  # 👈 cambiado a sprite/
     ).convert_alpha()
 
     # Botones
@@ -95,18 +94,21 @@ def final_menu(display, winner):
     lista = pygame.sprite.Group(btn_play, btn_quit)
 
     while repeat:
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 play = False
                 repeat = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if btn_play.get_rect().collidepoint(event.pos):
+                if btn_play.rect.collidepoint(event.pos):   # 👈 ahora usa la property
                     play = True
                     repeat = False
-                if btn_quit.get_rect().collidepoint(event.pos):
+                if btn_quit.rect.collidepoint(event.pos):   # 👈 ahora usa la property
                     play = False
                     repeat = False
 
+        # Dibujo
+        display.fill(Color.GREEN)
         display.blit(background, (0, 0))
         lista.draw(display)
         pygame.display.update()
@@ -114,7 +116,7 @@ def final_menu(display, winner):
     return play
 
 
-def pattern_menu(display, game):
+def pattern_menu(display, balls):
     play = True
     time = pygame.time.get_ticks()
     repeat = True
@@ -123,34 +125,49 @@ def pattern_menu(display, game):
         pygame.image.load(join("sprite", f"{i}.png")).convert_alpha()
         for i in range(1, 4)
     ]
-    lista = pygame.sprite.Group(ball for ball in game.get_balls())
 
     while repeat:
-
         current_time = pygame.time.get_ticks()
         seconds = (current_time - time) // 1000
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 repeat = False
                 play = False
+
         if seconds >= Var.COUNTDOWN:
             repeat = False
         else:
             number_surf = numbers[2 - int(seconds)]
+<<<<<<< Updated upstream
             number_rect = number_surf.get_rect(
                 center=(Var.WIDTH // 2, Var.HEIGHT // 2 + 150)
             )
             spacing = 50
             total_width = len(game.get_balls()) * spacing
+=======
+            number_rect = number_surf.get_rect(center=(Var.WIDTH // 2, Var.HEIGHT // 2 + 150))
+
+            display.blit(background, (0, 0))
+
+            # 👇 Centramos las bolas del patrón en el recuadro
+            spacing = 70
+            total_width = len(balls) * spacing
+>>>>>>> Stashed changes
             start_x = Var.WIDTH // 2 - total_width // 2
             y = Var.HEIGHT // 2
 
-            display.blit(background, (0, 0))
-            for i, ball in enumerate(lista):
+            for i, ball in enumerate(balls):
                 x = start_x + i * spacing
+<<<<<<< Updated upstream
                 ball.set_position((x, y))
+=======
+                rect = ball.image.get_rect(center=(x, y))
+                display.blit(ball.image, rect)
+
+            # contador encima
+>>>>>>> Stashed changes
             display.blit(number_surf, number_rect)
-            lista.draw(display)
             pygame.display.update()
 
     return play
