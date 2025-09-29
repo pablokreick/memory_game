@@ -69,86 +69,28 @@ class Game(pygame.sprite.Sprite):
     pattern = property(get_pattern, set_pattern)
     balls = property(get_balls, set_balls)
 
-    def get_level(self):
-        return self.__level
-
-    def increment_level(self):
-        self.__level += 1
-
-    def restart(self, balls):
-        self.level = 1
-        self.reset_balls_quantity()
-        Var.BALL_SPEED = 100
-        for ball in balls:
-            ball.kill()
-
-    def reset_pattern(self):
-        self.__pattern = []
-
-    def level_up(self):
-        self.increment_level()
-        self.increment_balls_quantity()
-        Var.BALL_SPEED += 5
-
-    def get_pattern_color(self, index):
-        return self.__pattern[index]
-
-    def count_pattern_colors(self):
-        return len(self.__pattern)
-
-    def get_balls_quantity(self):
-        return self.__balls_quantity
-
-    def increment_balls_quantity(self):
-        self.__balls_quantity += 1
-
-    def reset_balls_quantity(self):
-        self.__balls_quantity = 2
-
-    def set_balls_quantity(self, quantity):
-        self.__balls_quantity = quantity
-
-    def get_pattern(self):
-        return self.__pattern
-
-    def get_balls(self):
-        return self.__balls
-
     def check_collisions(self, objetive, sprite):
         return pygame.sprite.spritecollide(
             objetive, sprite, False, pygame.sprite.collide_mask
         )
 
-    def add_to_pattern(self, color):
-        self.__pattern.append(color)
-
-    def place_elements_in_position(self, player):
-        player.spawn_to_bottom()
-        self.set_balls_in_position()
-
-    def get__balls_images(self):
-        return self.get__balls_images
-
     def create_ball(self, color_name, sprites):
-        surf = self.__ball_images[color_name]
-        # x = random.randint(0, Var.WIDTH - surf.get_width())
-        # y = random.randint(0, Var.HEIGHT // 4)
-        # ball = Ball(surf, color_name, (x, y), sprites)
+        surf = self.ball_images[color_name]
         ball = Ball(surf, color_name, sprites)
         return ball
 
     def make_pattern(self, sprites):
-        self.__pattern = []
-        self.__balls = []
-        for _ in range(self.get_balls_quantity()):
-            color = random.choice(list(self.__ball_images.keys()))
-            self.__pattern.append(color)
-        for color in self.__pattern:
-            self.__balls.append(self.create_ball(color, sprites))
+        self.pattern = []
+        self.balls = []
+        for _ in range(self.balls_quantity):
+            color = random.choice(list(self.ball_images.keys()))
+            self.pattern.append(color)
+        for color in self.pattern:
+            self.balls.append(self.create_ball(color, sprites))
 
     def set_balls_in_position(self):
         balls_sprites = pygame.sprite.Group()
-        for ball in self.__balls:
+        for ball in self.balls:
             ball.set_position(
                 (
                     random.randint(0, Var.WIDTH - ball.image.get_width()),
@@ -163,33 +105,6 @@ class Game(pygame.sprite.Sprite):
                     )
                 )
             balls_sprites.add(ball)
-
-
-class Interface:
-    __display = None
-
-    def __init__(self, display):
-        self.__display = display
-
-    def get_display(self):
-        return self.__display
-
-    def reset_sprites(self, sprites):
-        for sprite in sprites:
-            sprite.empty()
-
-    def remove_from_sprites(self, object, sprites):
-        for sprite in sprites:
-            sprite.remove(object)
-
-    def show_lives(self, player):
-        for i in range(player.get_lives()):
-            self.__display.blit(player.life_image, (30 + i * 48, 10))
-
-    def show_balls(self, balls):
-        for i, ball in enumerate(balls):
-            ball.set_position((200 + i * 50, 30))
-            self.__display.blit(ball.image, ball.rect)
 
 
 class Player(pygame.sprite.Sprite):
@@ -266,7 +181,10 @@ class Player(pygame.sprite.Sprite):
         self.__life_image = life_image
 
     def set_score(self, score):
-        self.__score = score
+        if score <= 0:
+            self.__score = 0
+        else:
+            self.__score = score
 
     image = property(get_image, set_image)
     rect = property(get_rect, set_rect)
@@ -277,19 +195,11 @@ class Player(pygame.sprite.Sprite):
     life_image = property(get_life_image, set_life_image)
     score = property(get_score, set_score)
 
-    def add_score(self, points):
-        self.__score += points
-        if self.__score < 0:
-            self.__score = 0
-
     def has_no_lives(self):
         return self.lives == 0
 
-    def spawn_to_bottom(self):
-        self.rect.center = (Var.WIDTH // 2, Var.HEIGHT - self.__image.get_height())
-
     def has_completed_pattern(self, game):
-        return len(self.colors) >= game.count_pattern_colors()
+        return len(self.colors) >= len(game.pattern)
 
     # Movimiento
     def update(self, dt):

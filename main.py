@@ -1,7 +1,7 @@
 import pygame
 import sys
 from os.path import join
-from lib.Core import Player, Game, Interface
+from lib.Core import Player, Game
 
 # Nuestros módulos
 import lib.Var as Var
@@ -51,7 +51,6 @@ def main():
     score_rect = score_image.get_rect(topleft=(20, 70))
 
     game = Game()
-    interface = Interface(display)
     play = f.menu(display)
 
     # Crear la superficie de estáticos
@@ -63,25 +62,21 @@ def main():
     static_surface.blit(level_image, level_rect)
     player = Player((all_sprites, player_sprite))
     COUNTDOWN_EVENT = pygame.USEREVENT + 1
-    # ---------------------------------------------------------------------------- #
-    #                              WHILE DEL PROGRAMA                              #
-    # ---------------------------------------------------------------------------- #
+
     while play:
         player.colors = []
-        level_number_image = numbers[game.get_level()]
+        level_number_image = numbers[game.level]
         level_number_rect = level_number_image.get_rect(
             topleft=(Var.WIDTH - level_number_image.get_width() - 20, 70)
         )
         static_surface.blit(level_number_image, level_number_rect)
         game.make_pattern((all_sprites, ball_sprites))
-        print(game.get_pattern())
         play = f.pattern_menu(display, game)
         pygame.time.set_timer(COUNTDOWN_EVENT, 100, False)
         in_game = True
-        game.place_elements_in_position(player)
-        # ---------------------------------------------------------------------------- #
-        #                                WHILE DEL JUEGO                               #
-        # ---------------------------------------------------------------------------- #
+        player.rect.center = (Var.WIDTH // 2, Var.HEIGHT - player.image.get_height())
+        game.set_balls_in_position()
+
         while in_game and play:
             dt = clock.tick(Var.FPS) / 1000
             for event in pygame.event.get():
@@ -89,61 +84,58 @@ def main():
                     play = False
                     in_game = False
                 elif event.type == COUNTDOWN_EVENT:
-                    # pygame.time.set_timer(COUNTDOWN_EVENT, 0)
-                    # game.make_balls((all_sprites, ball_sprites))
-                    for ball in game.get_balls():
+                    for ball in game.balls:
                         ball.move = True
+            score_list = f.transform_int_to_list(player.score)
 
-                    # game.place_elements_in_position(player)
-                    # pygame.display.update()
-            score_list = f.transform_int_to_list(player.get_score())
-            # ---------------------------------------------------------------------------- #
-            #                                  COLISIONES                                  #
-            # ---------------------------------------------------------------------------- #
             collided_ball = game.check_collisions(player, ball_sprites)
 
             if collided_ball:
                 for ball in collided_ball:
                     index = len(player.colors)
-                    if ball.is_color(game.get_pattern_color(index)):
+                    if ball.is_color(game.pattern[index]):
                         player.colors.append(ball)
                         sound_good.play()
                         ball.kill()
-                        player.add_score(10)
-                        # level_number_image = numbers[game.get_level()]
-                        print(player.get_score())
+                        player.score = player.score + 10
                         if player.has_completed_pattern(game):
                             sound_win.play()
                             play = f.final_menu(display, True)
                             if play:
-                                game.level_up()
+                                game.level = game.level + 1
+                                game.balls_quantity = game.balls_quantity + 1
+                                Var.BALL_SPEED += 5
                                 in_game = False
                     else:
                         ball.move_to_random_position()
                         sound_wrong.play()
                         player.lives -= 1
-                        player.add_score(-1)
+                        player.score = player.score - 1
                         if player.has_no_lives():
                             sound_fail.play()
                             play = f.final_menu(display, False)
                             if play:
                                 in_game = False
-                                game.restart(ball_sprites)
+                                game.level = 1
+                                Var.BALL_SPEED = 100
+                                game.balls_quantity = Var.INITIAL_BALLS
+                                for ball in ball_sprites:
+                                    ball.kill()
                                 player.lives = 3
                                 player.score = 0
                                 player.colors = []
 
-            # ---------------------------------------------------------------------------- #
-            #                                DISPLAY SPRITES                               #
-            # ---------------------------------------------------------------------------- #
             all_sprites.update(dt)
             display.blit(background, background_rect)
             display.blit(top_menu, top_menu_rect)
             display.blit(background, background_rect)
             display.blit(top_menu, top_menu_rect)
             all_sprites.draw(display)
-            interface.show_balls(player.colors)
-            interface.show_lives(player)
+            for i, ball in enumerate(player.colors):
+                ball.set_position((200 + i * 50, 30))
+                display.blit(ball.image, ball.rect)
+            for i in range(player.lives):
+                display.blit(player.life_image, (30 + i * 48, 10))
             display.blit(level_image, level_rect)
             display.blit(level_number_image, level_number_rect)
             display.blit(score_image, score_rect)

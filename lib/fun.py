@@ -89,7 +89,7 @@ def pattern_menu(display, game):
         pygame.image.load(join("sprite", f"{i}.png")).convert_alpha()
         for i in range(1, 4)
     ]
-    lista = pygame.sprite.Group(ball for ball in game.get_balls())
+    lista = pygame.sprite.Group(ball for ball in game.balls)
 
     while repeat:
 
@@ -107,7 +107,7 @@ def pattern_menu(display, game):
                 center=(Var.WIDTH // 2, Var.HEIGHT // 2 + 150)
             )
             spacing = 50
-            total_width = len(game.get_balls()) * spacing
+            total_width = len(game.balls) * spacing
             # start_x = Var.WIDTH // 2 - total_width // 2 + spacing // 2
             start_x = Var.WIDTH // 2 - total_width // 2
             y = Var.HEIGHT // 2 - 50
