@@ -62,7 +62,7 @@ def main():
     static_surface.blit(top_menu, top_menu_rect)
     static_surface.blit(level_image, level_rect)
     player = Player((all_sprites, player_sprite))
-
+    COUNTDOWN_EVENT = pygame.USEREVENT + 1
     # ---------------------------------------------------------------------------- #
     #                              WHILE DEL PROGRAMA                              #
     # ---------------------------------------------------------------------------- #
@@ -74,22 +74,29 @@ def main():
         )
         static_surface.blit(level_number_image, level_number_rect)
         game.make_pattern((all_sprites, ball_sprites))
-        play = f.pattern_menu(display, game.get_balls())
-        game.place_elements_in_position(player)
+        play = f.pattern_menu(display, game)
+        pygame.time.set_timer(COUNTDOWN_EVENT, 100, False)
         in_game = True
+        game.place_elements_in_position(player)
         # ---------------------------------------------------------------------------- #
         #                                WHILE DEL JUEGO                               #
         # ---------------------------------------------------------------------------- #
         while in_game and play:
             dt = clock.tick(Var.FPS) / 1000
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     play = False
                     in_game = False
+                elif event.type == COUNTDOWN_EVENT:
+                    print("Empieza el juego")
+                    # pygame.time.set_timer(COUNTDOWN_EVENT, 0)
+                    # game.make_balls((all_sprites, ball_sprites))
+                    for ball in game.get_balls():
+                        ball.set__move(True)
 
+                    # game.place_elements_in_position(player)
+                    # pygame.display.update()
             score_list = f.transform_int_to_list(player.get_score())
-            print(player.get_score())
             # ---------------------------------------------------------------------------- #
             #                                  COLISIONES                                  #
             # ---------------------------------------------------------------------------- #

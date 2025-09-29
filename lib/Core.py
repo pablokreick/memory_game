@@ -267,6 +267,7 @@ class Ball(pygame.sprite.Sprite):
     __direction = None
     __speed = None
     __color = None
+    __move = False
 
     def __init__(self, surf, color, groups):
         super().__init__(groups)
@@ -277,6 +278,9 @@ class Ball(pygame.sprite.Sprite):
         self.__color = color
 
     # Métodos de acceso
+    def set__move(self, value):
+        self.__move = value
+
     def get_image(self):
         return self.__image
 
@@ -309,21 +313,22 @@ class Ball(pygame.sprite.Sprite):
 
     # Movimiento
     def update(self, dt):
-        self.__rect.center += self.__direction * self.__speed * dt
+        if self.__move:
+            self.__rect.center += self.__direction * self.__speed * dt
 
-        # rebotes contra bordes
-        if self.__rect.bottom >= Var.HEIGHT:
-            self.__direction.y *= -1
-            self.__rect.bottom = Var.HEIGHT
-        if self.__rect.top <= Var.TOP_MARGIN:
-            self.__direction.y *= -1
-            self.__rect.top = Var.TOP_MARGIN
-        if self.__rect.left <= 0:
-            self.__direction.x *= -1
-            self.__rect.left = 0
-        if self.__rect.right >= Var.WIDTH:
-            self.__direction.x *= -1
-            self.__rect.right = Var.WIDTH
+            # rebotes contra bordes
+            if self.__rect.bottom >= Var.HEIGHT:
+                self.__direction.y *= -1
+                self.__rect.bottom = Var.HEIGHT
+            if self.__rect.top <= Var.TOP_MARGIN:
+                self.__direction.y *= -1
+                self.__rect.top = Var.TOP_MARGIN
+            if self.__rect.left <= 0:
+                self.__direction.x *= -1
+                self.__rect.left = 0
+            if self.__rect.right >= Var.WIDTH:
+                self.__direction.x *= -1
+                self.__rect.right = Var.WIDTH
 
 
 class Button(pygame.sprite.Sprite):

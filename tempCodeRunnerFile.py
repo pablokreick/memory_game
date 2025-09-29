@@ -1,1 +1,2 @@
-interface.remove_from_sprites(ball, (all_sprites, ball_sprites))
+ls():
+                    #     ball.set__move(True)
