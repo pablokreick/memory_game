@@ -63,9 +63,7 @@ def main():
     static_surface.blit(level_image, level_rect)
     player = Player((all_sprites, player_sprite))
     COUNTDOWN_EVENT = pygame.USEREVENT + 1
-    # ---------------------------------------------------------------------------- #
-    #                              WHILE DEL PROGRAMA                              #
-    # ---------------------------------------------------------------------------- #
+
     while play:
         player.get_colors().clear()
         level_number_image = numbers[game.get_level()]
@@ -79,9 +77,7 @@ def main():
         pygame.time.set_timer(COUNTDOWN_EVENT, 100, False)
         in_game = True
         game.place_elements_in_position(player)
-        # ---------------------------------------------------------------------------- #
-        #                                WHILE DEL JUEGO                               #
-        # ---------------------------------------------------------------------------- #
+
         while in_game and play:
             dt = clock.tick(Var.FPS) / 1000
             for event in pygame.event.get():
@@ -89,17 +85,11 @@ def main():
                     play = False
                     in_game = False
                 elif event.type == COUNTDOWN_EVENT:
-                    # pygame.time.set_timer(COUNTDOWN_EVENT, 0)
-                    # game.make_balls((all_sprites, ball_sprites))
                     for ball in game.get_balls():
                         ball.set__move(True)
 
-                    # game.place_elements_in_position(player)
-                    # pygame.display.update()
             score_list = f.transform_int_to_list(player.get_score())
-            # ---------------------------------------------------------------------------- #
-            #                                  COLISIONES                                  #
-            # ---------------------------------------------------------------------------- #
+
             collided_ball = game.check_collisions(player, ball_sprites)
 
             if collided_ball:
@@ -110,14 +100,20 @@ def main():
                         sound_good.play()
                         ball.kill()
                         player.add_score(10)
-                        # level_number_image = numbers[game.get_level()]
                         print(player.get_score())
                         if player.has_completed_pattern(game):
                             sound_win.play()
-                            play = f.final_menu(display, True)
-                            if play:
-                                game.level_up()
-                                in_game = False
+                            if game.get_level() >= 9:
+                                play = f.menu_congratulations(display)
+                                if play:
+                                    in_game = False
+                                    game.restart(ball_sprites)
+                                    player.restart()
+                            else:
+                                play = f.final_menu(display, True)
+                                if play:
+                                    game.level_up()
+                                    in_game = False
                     else:
                         ball.move_to_random_position()
                         sound_wrong.play()
@@ -131,9 +127,6 @@ def main():
                                 game.restart(ball_sprites)
                                 player.restart()
 
-            # ---------------------------------------------------------------------------- #
-            #                                DISPLAY SPRITES                               #
-            # ---------------------------------------------------------------------------- #
             all_sprites.update(dt)
             display.blit(background, background_rect)
             display.blit(top_menu, top_menu_rect)

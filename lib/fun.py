@@ -44,6 +44,40 @@ def menu(display):
     return play
 
 
+def menu_congratulations(display):
+    repeat = True
+    play = False
+    background = pygame.image.load(join("sprite", "final.png")).convert_alpha()
+
+    # Botones
+    btn_play = c.Button("btn_final.png", Var.WIDTH // 2 + 150, Var.HEIGHT // 2)
+    btn_quit = c.Button(
+        "btn_quit_final.png", Var.WIDTH // 2 + 150, Var.HEIGHT // 2 + 120
+    )
+    lista = pygame.sprite.Group(btn_play, btn_quit)
+
+    while repeat:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                play = False
+                repeat = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if btn_play.get_rect().collidepoint(event.pos):
+                    play = True
+                    repeat = False
+                if btn_quit.get_rect().collidepoint(event.pos):
+                    play = False
+                    repeat = False
+
+        # Dibujo
+        display.fill(Color.GREEN)
+        display.blit(background, (0, 0))
+        lista.draw(display)
+        pygame.display.update()
+
+    return play
+
+
 def final_menu(display, winner):
     repeat = True
     play = False
@@ -108,14 +142,12 @@ def pattern_menu(display, game):
             )
             spacing = 50
             total_width = len(game.get_balls()) * spacing
-            # start_x = Var.WIDTH // 2 - total_width // 2 + spacing // 2
             start_x = Var.WIDTH // 2 - total_width // 2
-            y = Var.HEIGHT // 2 - 50
+            y = Var.HEIGHT // 2
 
             display.blit(background, (0, 0))
             for i, ball in enumerate(lista):
                 x = start_x + i * spacing
-                # display.blit(ball.get_image(), (x, y))
                 ball.set_position((x, y))
             display.blit(number_surf, number_rect)
             lista.draw(display)
