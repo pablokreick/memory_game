@@ -1,9 +1,8 @@
 import pygame
 import sys
-from os.path import join
-from lib.Core import Player, Game, Interface
+import random
+from lib.Core import Player, Ball, HUDLifes, SoundManager, AssetManager
 
-# Nuestros módulos
 import lib.Var as Var
 import lib.Color as Color
 import lib.fun as f
@@ -11,142 +10,166 @@ import lib.fun as f
 
 def main():
     pygame.init()
-
-    # Configuración de la ventana
     display = pygame.display.set_mode((Var.WIDTH, Var.HEIGHT))
     pygame.display.set_caption(Var.TITLE)
-
     clock = pygame.time.Clock()
 
-    # Sonidos
-    sound_good = pygame.mixer.Sound(join("sounds", "bubble.mp3"))
-    sound_wrong = pygame.mixer.Sound(join("sounds", "wrong.mp3"))
-    sound_win = pygame.mixer.Sound(join("sounds", "win.mp3"))
-    sound_fail = pygame.mixer.Sound(join("sounds", "fail.mp3"))
+    # ==== Gestores ====
+    sound_manager = SoundManager()
+    assets = AssetManager()
 
-    pygame.mixer.music.load(join("sounds", "music.mp3"))
-    pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(0.05)
+    # Variables del juego
+    level = 1
+    balls_quantity = 2
 
     # Grupos de sprites
     player_sprite = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
     ball_sprites = pygame.sprite.Group()
 
-    numbers = [
-        pygame.image.load(join("sprite", f"{i}.png")).convert_alpha() for i in range(10)
-    ]
-
-    level_image = pygame.image.load(join("sprite", "nivel.png")).convert_alpha()
+    # Recursos
+    numbers = assets.get_numbers()
+    level_image = assets.get_level_image()
+    top_menu = assets.get_top_menu()
+    life = assets.get_life()
+    background = assets.get_background()
+    hud_lifes = HUDLifes(life, max_lifes=3)
+    top_menu_rect = top_menu.get_rect(center=(Var.WIDTH // 2, top_menu.get_height() // 2))
     level_rect = level_image.get_rect(topright=(Var.WIDTH - 100, 70))
-
-    top_menu = pygame.image.load(join("sprite", "menu-superior.png"))
-    top_menu_rect = top_menu.get_rect(
-        center=(Var.WIDTH // 2, top_menu.get_height() // 2)
-    )
-    background = pygame.image.load(join("sprite", "background.png"))
     background_rect = background.get_rect(topleft=(0, 0))
 
-    score_image = pygame.image.load(join("sprite", "puntos.png")).convert_alpha()
-    score_rect = score_image.get_rect(topleft=(20, 70))
+    # Fuente por si no tenés sprite de "Puntos"
+    font = pygame.font.SysFont(None, 36)
 
-    game = Game()
-    interface = Interface(display)
+    # ==== Función auxiliar para mostrar las bolas del patrón ====
+    def show_balls(balls):
+        for i, ball in enumerate(balls):
+            surf = assets.get_ball(ball.color)
+            rect = surf.get_rect(topleft=(200 + i * 50, 7))
+            display.blit(surf, rect)
+
+    # ==== Función para evitar superposición de bolas ====
+    def recolocar_bolas(bolas):
+        for i in range(len(bolas)):
+            for j in range(i + 1, len(bolas)):
+                # mientras se superpongan, recoloco la bola j
+                while bolas[i].rect.colliderect(bolas[j].rect):
+                    bolas[j].rect.center = (
+                        random.randint(50, Var.WIDTH - 50),
+                        random.randint(100, Var.HEIGHT // 3),
+                    )
+
+    # Menú inicial
     play = f.menu(display)
 
-    # Crear la superficie de estáticos
-    static_surface = pygame.Surface((Var.WIDTH, Var.HEIGHT), pygame.SRCALPHA)
-
-    # Dibujar todo sobre esa superficie solo una vez
-    static_surface.blit(background, background_rect)
-    static_surface.blit(top_menu, top_menu_rect)
-    static_surface.blit(level_image, level_rect)
-    player = Player((all_sprites, player_sprite))
-    COUNTDOWN_EVENT = pygame.USEREVENT + 1
-    # ---------------------------------------------------------------------------- #
-    #                              WHILE DEL PROGRAMA                              #
-    # ---------------------------------------------------------------------------- #
+    # ==== Bucle principal del juego ====
     while play:
-        player.get_colors().clear()
-        level_number_image = numbers[game.get_level()]
+        all_sprites.empty()
+        ball_sprites.empty()
+        player_sprite.empty()
+
+        level_number_image = numbers[level]
         level_number_rect = level_number_image.get_rect(
             topleft=(Var.WIDTH - level_number_image.get_width() - 20, 70)
         )
-        static_surface.blit(level_number_image, level_number_rect)
-        game.make_pattern((all_sprites, ball_sprites))
-        print(game.get_pattern())
-        play = f.pattern_menu(display, game)
-        pygame.time.set_timer(COUNTDOWN_EVENT, 100, False)
+
+        balls = []
+        pattern = []
+        player = Player((all_sprites, player_sprite))
+        player.rect.center = (Var.WIDTH // 2, Var.HEIGHT - player.image.get_height())
+        player.colors = []
+        player.lifes = 3
+        player.reset_score()   # 👈 reinicia el score al comenzar nivel
+        hud_lifes.reset()
+
+        # Crear patrón (lista de colores)
+        for _ in range(balls_quantity):
+            color = random.choice(["blue", "lightblue", "green", "red", "violet", "yellow"])
+            pattern.append(color)
+
+        # Crear bolas del patrón con posiciones iniciales aleatorias
+        for color in pattern:
+            ball = Ball(assets.get_ball(color), color, (all_sprites, ball_sprites))
+            ball.rect.center = (
+                random.randint(50, Var.WIDTH - 50),
+                random.randint(100, Var.HEIGHT // 3),
+            )
+            balls.append(ball)
+
+        # 👇 Corregir superposiciones
+        recolocar_bolas(balls)
+
+        # 👇 Mostrar el patrón ANTES del menú de cuenta regresiva
+        display.blit(background, background_rect)
+        display.blit(top_menu, top_menu_rect)
+        show_balls(balls)
+        pygame.display.update()
+
+        # Ahora sí mostrar el menú de cuenta regresiva
+        play = f.pattern_menu(display, balls)
+        print(pattern)
+
         in_game = True
-        game.place_elements_in_position(player)
-        # ---------------------------------------------------------------------------- #
-        #                                WHILE DEL JUEGO                               #
-        # ---------------------------------------------------------------------------- #
         while in_game and play:
             dt = clock.tick(Var.FPS) / 1000
+            display.fill(Color.BLACK)
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     play = False
                     in_game = False
-                elif event.type == COUNTDOWN_EVENT:
-                    # pygame.time.set_timer(COUNTDOWN_EVENT, 0)
-                    # game.make_balls((all_sprites, ball_sprites))
-                    for ball in game.get_balls():
-                        ball.set__move(True)
 
-                    # game.place_elements_in_position(player)
-                    # pygame.display.update()
-            score_list = f.transform_int_to_list(player.get_score())
-            # ---------------------------------------------------------------------------- #
-            #                                  COLISIONES                                  #
-            # ---------------------------------------------------------------------------- #
-            collided_ball = game.check_collisions(player, ball_sprites)
-
+            # Colisiones
+            collided_ball = pygame.sprite.spritecollide(
+                player, ball_sprites, False, pygame.sprite.collide_mask
+            )
             if collided_ball:
                 for ball in collided_ball:
-                    index = player.count_colors()
-                    if ball.is_color(game.get_pattern_color(index)):
-                        player.catch_ball(ball)
-                        sound_good.play()
-                        ball.kill()
-                        player.add_score(10)
-                        # level_number_image = numbers[game.get_level()]
-                        print(player.get_score())
-                        if player.has_completed_pattern(game):
-                            sound_win.play()
+                    index = len(player.colors)
+                    if ball.color == pattern[index]:
+                        player.colors.append(ball)
+                        sound_manager.play_good()
+                        all_sprites.remove(ball)
+                        ball_sprites.remove(ball)
+                        player.add_score(10)   # 👈 suma puntos
+                        if len(player.colors) >= len(pattern):
+                            sound_manager.play_win()
                             play = f.final_menu(display, True)
-                            if play:
-                                game.level_up()
-                                in_game = False
+                            level += 1
+                            balls_quantity += 1
+                            Var.BALL_SPEED += 5
+                            in_game = False
                     else:
-                        ball.move_to_random_position()
-                        sound_wrong.play()
-                        player.lose_life()
-                        player.add_score(-1)
-                        if player.has_no_lives():
-                            sound_fail.play()
+                        # rebota mal → se recoloca
+                        ball.rect.center = (
+                            random.randint(0, Var.WIDTH),
+                            random.randint(0, Var.HEIGHT),
+                        )
+                        sound_manager.play_wrong()
+                        player.lifes -= 1
+                        player.add_score(-1)   # 👈 resta puntos
+                        hud_lifes.lose()
+                        if player.lifes == 0:
+                            sound_manager.play_fail()
                             play = f.final_menu(display, False)
-                            if play:
-                                in_game = False
-                                game.restart(ball_sprites)
-                                player.restart()
+                            in_game = False
+                            balls_quantity = 2
+                            level = 1
 
-            # ---------------------------------------------------------------------------- #
-            #                                DISPLAY SPRITES                               #
-            # ---------------------------------------------------------------------------- #
+            # === Dibujado ===
             all_sprites.update(dt)
             display.blit(background, background_rect)
-            display.blit(top_menu, top_menu_rect)
-            display.blit(background, background_rect)
-            display.blit(top_menu, top_menu_rect)
             all_sprites.draw(display)
-            interface.show_balls(player.get_colors())
-            interface.show_lives(player)
+            display.blit(top_menu, top_menu_rect)
+            show_balls(player.colors)
+            hud_lifes.draw(display)
             display.blit(level_image, level_rect)
             display.blit(level_number_image, level_number_rect)
-            display.blit(score_image, score_rect)
-            for i, value in enumerate(score_list):
-                display.blit(numbers[int(value)], (300 + i * 35, 70))
+
+            # --- Mostrar SCORE ---
+            score_text = font.render(f"Score: {player.get_score()}", True, (255, 255, 255))
+            display.blit(score_text, (300, 70))
+
             pygame.display.update()
 
     pygame.quit()
