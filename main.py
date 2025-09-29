@@ -65,11 +65,13 @@ def main():
 
     while play:
         player.colors = []
+        # 👇 ahora game.level es una property en Game
         level_number_image = numbers[game.level]
         level_number_rect = level_number_image.get_rect(
             topleft=(Var.WIDTH - level_number_image.get_width() - 20, 70)
         )
         static_surface.blit(level_number_image, level_number_rect)
+
         game.make_pattern((all_sprites, ball_sprites))
         play = f.pattern_menu(display, game)
         pygame.time.set_timer(COUNTDOWN_EVENT, 100, False)
@@ -85,7 +87,8 @@ def main():
                     in_game = False
                 elif event.type == COUNTDOWN_EVENT:
                     for ball in game.balls:
-                        ball.move = True
+                        ball.move = True  # ⚠️ ojo: en Ball no existe move, es __move → hay que exponerlo
+
             score_list = f.transform_int_to_list(player.score)
 
             collided_ball = game.check_collisions(player, ball_sprites)
@@ -144,16 +147,21 @@ def main():
             display.blit(background, background_rect)
             display.blit(top_menu, top_menu_rect)
             all_sprites.draw(display)
+
             for i, ball in enumerate(player.colors):
                 ball.set_position((200 + i * 50, 30))
                 display.blit(ball.image, ball.rect)
+
             for i in range(player.lives):
                 display.blit(player.life_image, (30 + i * 48, 10))
+
             display.blit(level_image, level_rect)
             display.blit(level_number_image, level_number_rect)
             display.blit(score_image, score_rect)
+
             for i, value in enumerate(score_list):
                 display.blit(numbers[int(value)], (300 + i * 35, 70))
+
             pygame.display.update()
 
     pygame.quit()

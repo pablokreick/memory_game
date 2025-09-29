@@ -15,7 +15,7 @@ def menu(display):
     play = False
     background = pygame.image.load(
         join("sprite", "main.png")
-    ).convert_alpha()  # 👈 cambiado a sprite/
+    ).convert_alpha()
 
     # Botones
     btn_play = c.Button("btn_play.png", Var.WIDTH // 2, Var.HEIGHT // 2)
@@ -35,7 +35,6 @@ def menu(display):
                     play = False
                     repeat = False
 
-        # Dibujo
         display.fill(Color.GREEN)
         display.blit(background, (0, 0))
         lista.draw(display)
@@ -51,7 +50,6 @@ def final_menu(display, winner):
         join("sprite", "winner.png" if winner else "looser.png")
     ).convert_alpha()
 
-    # Botones
     btn_play = c.Button(
         "btn_again_winner.png" if winner else "btn_again.png",
         Var.WIDTH // 2,
@@ -89,16 +87,19 @@ def pattern_menu(display, game):
         pygame.image.load(join("sprite", f"{i}.png")).convert_alpha()
         for i in range(1, 4)
     ]
-    lista = pygame.sprite.Group(ball for ball in game.balls)
+
+    # 👇 ahora usamos HudBall en vez de las bolas reales del juego
+    hud_balls = [c.HudBall(ball.get_image(), ball.get_color()) for ball in game.get_balls()]
 
     while repeat:
-
         current_time = pygame.time.get_ticks()
         seconds = (current_time - time) // 1000
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 repeat = False
                 play = False
+
         if seconds >= Var.COUNTDOWN:
             repeat = False
         else:
@@ -107,17 +108,17 @@ def pattern_menu(display, game):
                 center=(Var.WIDTH // 2, Var.HEIGHT // 2 + 150)
             )
             spacing = 50
-            total_width = len(game.balls) * spacing
-            # start_x = Var.WIDTH // 2 - total_width // 2 + spacing // 2
+            total_width = len(hud_balls) * spacing
             start_x = Var.WIDTH // 2 - total_width // 2
             y = Var.HEIGHT // 2 - 50
 
             display.blit(background, (0, 0))
-            for i, ball in enumerate(lista):
+            for i, hud_ball in enumerate(hud_balls):
                 x = start_x + i * spacing
-                ball.set_position((x, y))
+                hud_ball.set_position((x, y))
+                hud_ball.draw(display)
+
             display.blit(number_surf, number_rect)
-            lista.draw(display)
             pygame.display.update()
 
     return play
@@ -128,7 +129,6 @@ def menu_congratulations(display):
     play = False
     background = pygame.image.load(join("sprite", "final.png")).convert_alpha()
 
-    # Botones
     btn_play = c.Button("btn_final.png", Var.WIDTH // 2 + 150, Var.HEIGHT // 2)
     btn_quit = c.Button(
         "btn_quit_final.png", Var.WIDTH // 2 + 150, Var.HEIGHT // 2 + 120
@@ -148,7 +148,6 @@ def menu_congratulations(display):
                     play = False
                     repeat = False
 
-        # Dibujo
         display.fill(Color.GREEN)
         display.blit(background, (0, 0))
         lista.draw(display)
