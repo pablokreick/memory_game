@@ -25,7 +25,7 @@ def main():
     sound_fail = pygame.mixer.Sound(join("sounds", "fail.mp3"))
 
     pygame.mixer.music.load(join("sounds", "music.mp3"))
-    pygame.mixer.music.play(-1)
+    # pygame.mixer.music.play(-1)
     pygame.mixer.music.set_volume(0.05)
 
     # Grupos de sprites
@@ -74,6 +74,7 @@ def main():
         )
         static_surface.blit(level_number_image, level_number_rect)
         game.make_pattern((all_sprites, ball_sprites))
+        print(game.get_pattern())
         play = f.pattern_menu(display, game)
         pygame.time.set_timer(COUNTDOWN_EVENT, 100, False)
         in_game = True
@@ -88,7 +89,6 @@ def main():
                     play = False
                     in_game = False
                 elif event.type == COUNTDOWN_EVENT:
-                    print("Empieza el juego")
                     # pygame.time.set_timer(COUNTDOWN_EVENT, 0)
                     # game.make_balls((all_sprites, ball_sprites))
                     for ball in game.get_balls():
@@ -111,7 +111,7 @@ def main():
                         ball.kill()
                         player.add_score(10)
                         # level_number_image = numbers[game.get_level()]
-
+                        print(player.get_score())
                         if player.has_completed_pattern(game):
                             sound_win.play()
                             play = f.final_menu(display, True)
@@ -123,13 +123,13 @@ def main():
                         sound_wrong.play()
                         player.lose_life()
                         player.add_score(-1)
-                        if player.has_no_lives():
-                            sound_fail.play()
-                            play = f.final_menu(display, False)
-                            if play:
-                                in_game = False
-                                game.restart(ball_sprites)
-                                player.restart()
+                        # if player.has_no_lives():
+                        #     sound_fail.play()
+                        #     play = f.final_menu(display, False)
+                        #     if play:
+                        #         in_game = False
+                        #         game.restart(ball_sprites)
+                        #         player.restart()
 
             # ---------------------------------------------------------------------------- #
             #                                DISPLAY SPRITES                               #
@@ -145,10 +145,8 @@ def main():
             display.blit(level_image, level_rect)
             display.blit(level_number_image, level_number_rect)
             display.blit(score_image, score_rect)
-            for value in score_list:
-                display.blit(
-                    numbers[int(value)], (300 + score_list.index(value) * 30, 70)
-                )
+            for i, value in enumerate(score_list):
+                display.blit(numbers[int(value)], (300 + i * 35, 70))
             pygame.display.update()
 
     pygame.quit()
