@@ -33,20 +33,50 @@ class Game(pygame.sprite.Sprite):
             ).convert_alpha(),
         }
 
+    def get_ball_images(self):
+        return self.__ball_images
+
     def get_level(self):
         return self.__level
+
+    def get_balls_quantity(self):
+        return self.__balls_quantity
+
+    def get_pattern(self):
+        return self.__pattern
+
+    def get_balls(self):
+        return self.__balls
+
+    def set_ball_images(self, ball_images):
+        self.__ball_images = ball_images
 
     def set_level(self, level):
         self.__level = level
 
+    def set_balls_quantity(self, balls_quantity):
+        self.__balls_quantity = balls_quantity
+
+    def set_pattern(self, pattern):
+        self.__pattern = pattern
+
+    def set_balls(self, balls):
+        self.__balls = balls
+
+    ball_images = property(get_ball_images, set_ball_images)
+    level = property(get_level, set_level)
+    balls_quantity = property(get_balls_quantity, set_balls_quantity)
+    pattern = property(get_pattern, set_pattern)
+    balls = property(get_balls, set_balls)
+
+    def get_level(self):
+        return self.__level
+
     def increment_level(self):
         self.__level += 1
 
-    def reset_level(self):
-        self.__level = 1
-
     def restart(self, balls):
-        self.reset_level()
+        self.level = 1
         self.reset_balls_quantity()
         Var.BALL_SPEED = 100
         for ball in balls:
