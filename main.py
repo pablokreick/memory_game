@@ -100,12 +100,25 @@ def main():
                         player.score = player.score + 10
                         if player.has_completed_pattern(game):
                             sound_win.play()
-                            play = f.final_menu(display, True)
-                            if play:
-                                game.level = game.level + 1
-                                game.balls_quantity = game.balls_quantity + 1
-                                Var.BALL_SPEED += 5
-                                in_game = False
+                            if game.level >= 9:
+                                play = f.menu_congratulations(display)
+                                if play:
+                                    in_game = False
+                                    game.level = 1
+                                    Var.BALL_SPEED = 100
+                                    game.balls_quantity = Var.INITIAL_BALLS
+                                    for ball in ball_sprites:
+                                        ball.kill()
+                                    player.lives = 3
+                                    player.score = 0
+                                    player.colors = []
+                            else:
+                                play = f.final_menu(display, True)
+                                if play:
+                                    game.level = game.level + 1
+                                    game.balls_quantity = game.balls_quantity + 1
+                                    Var.BALL_SPEED += 5
+                                    in_game = False
                     else:
                         ball.move_to_random_position()
                         sound_wrong.play()

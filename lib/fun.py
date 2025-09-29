@@ -121,3 +121,37 @@ def pattern_menu(display, game):
             pygame.display.update()
 
     return play
+
+
+def menu_congratulations(display):
+    repeat = True
+    play = False
+    background = pygame.image.load(join("sprite", "final.png")).convert_alpha()
+
+    # Botones
+    btn_play = c.Button("btn_final.png", Var.WIDTH // 2 + 150, Var.HEIGHT // 2)
+    btn_quit = c.Button(
+        "btn_quit_final.png", Var.WIDTH // 2 + 150, Var.HEIGHT // 2 + 120
+    )
+    lista = pygame.sprite.Group(btn_play, btn_quit)
+
+    while repeat:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                play = False
+                repeat = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if btn_play.rect.collidepoint(event.pos):
+                    play = True
+                    repeat = False
+                if btn_quit.rect.collidepoint(event.pos):
+                    play = False
+                    repeat = False
+
+        # Dibujo
+        display.fill(Color.GREEN)
+        display.blit(background, (0, 0))
+        lista.draw(display)
+        pygame.display.update()
+
+    return play
