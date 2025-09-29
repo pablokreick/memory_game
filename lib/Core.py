@@ -117,6 +117,7 @@ class Game(pygame.sprite.Sprite):
             self.__balls.append(self.create_ball(color, sprites))
 
     def set_balls_in_position(self):
+        balls_sprites = pygame.sprite.Group()
         for ball in self.__balls:
             ball.set_position(
                 (
@@ -124,6 +125,14 @@ class Game(pygame.sprite.Sprite):
                     random.randint(0, Var.HEIGHT // 4),
                 )
             )
+            while pygame.sprite.spritecollide(ball, balls_sprites, False):
+                ball.set_position(
+                    (
+                        random.randint(0, Var.WIDTH - ball.get_image().get_width()),
+                        random.randint(0, Var.HEIGHT // 4),
+                    )
+                )
+            balls_sprites.add(ball)
 
 
 class Interface:

@@ -25,7 +25,7 @@ def main():
     sound_fail = pygame.mixer.Sound(join("sounds", "fail.mp3"))
 
     pygame.mixer.music.load(join("sounds", "music.mp3"))
-    # pygame.mixer.music.play(-1)
+    pygame.mixer.music.play(-1)
     pygame.mixer.music.set_volume(0.05)
 
     # Grupos de sprites
