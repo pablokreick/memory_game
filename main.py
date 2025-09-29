@@ -123,13 +123,13 @@ def main():
                         sound_wrong.play()
                         player.lose_life()
                         player.add_score(-1)
-                        # if player.has_no_lives():
-                        #     sound_fail.play()
-                        #     play = f.final_menu(display, False)
-                        #     if play:
-                        #         in_game = False
-                        #         game.restart(ball_sprites)
-                        #         player.restart()
+                        if player.has_no_lives():
+                            sound_fail.play()
+                            play = f.final_menu(display, False)
+                            if play:
+                                in_game = False
+                                game.restart(ball_sprites)
+                                player.restart()
 
             # ---------------------------------------------------------------------------- #
             #                                DISPLAY SPRITES                               #
