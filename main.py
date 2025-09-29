@@ -67,7 +67,7 @@ def main():
     #                              WHILE DEL PROGRAMA                              #
     # ---------------------------------------------------------------------------- #
     while play:
-        player.get_colors().clear()
+        player.colors = []
         level_number_image = numbers[game.get_level()]
         level_number_rect = level_number_image.get_rect(
             topleft=(Var.WIDTH - level_number_image.get_width() - 20, 70)
@@ -92,7 +92,7 @@ def main():
                     # pygame.time.set_timer(COUNTDOWN_EVENT, 0)
                     # game.make_balls((all_sprites, ball_sprites))
                     for ball in game.get_balls():
-                        ball.set__move(True)
+                        ball.move = True
 
                     # game.place_elements_in_position(player)
                     # pygame.display.update()
@@ -104,9 +104,9 @@ def main():
 
             if collided_ball:
                 for ball in collided_ball:
-                    index = player.count_colors()
+                    index = len(player.colors)
                     if ball.is_color(game.get_pattern_color(index)):
-                        player.catch_ball(ball)
+                        player.colors.append(ball)
                         sound_good.play()
                         ball.kill()
                         player.add_score(10)
@@ -121,7 +121,7 @@ def main():
                     else:
                         ball.move_to_random_position()
                         sound_wrong.play()
-                        player.lose_life()
+                        player.lives -= 1
                         player.add_score(-1)
                         if player.has_no_lives():
                             sound_fail.play()
@@ -129,7 +129,9 @@ def main():
                             if play:
                                 in_game = False
                                 game.restart(ball_sprites)
-                                player.restart()
+                                player.lives = 3
+                                player.score = 0
+                                player.colors = []
 
             # ---------------------------------------------------------------------------- #
             #                                DISPLAY SPRITES                               #
@@ -140,7 +142,7 @@ def main():
             display.blit(background, background_rect)
             display.blit(top_menu, top_menu_rect)
             all_sprites.draw(display)
-            interface.show_balls(player.get_colors())
+            interface.show_balls(player.colors)
             interface.show_lives(player)
             display.blit(level_image, level_rect)
             display.blit(level_number_image, level_number_rect)

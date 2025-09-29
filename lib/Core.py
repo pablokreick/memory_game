@@ -121,14 +121,14 @@ class Game(pygame.sprite.Sprite):
         for ball in self.__balls:
             ball.set_position(
                 (
-                    random.randint(0, Var.WIDTH - ball.get_image().get_width()),
+                    random.randint(0, Var.WIDTH - ball.image.get_width()),
                     random.randint(0, Var.HEIGHT // 4),
                 )
             )
             while pygame.sprite.spritecollide(ball, balls_sprites, False):
                 ball.set_position(
                     (
-                        random.randint(0, Var.WIDTH - ball.get_image().get_width()),
+                        random.randint(0, Var.WIDTH - ball.image.get_width()),
                         random.randint(0, Var.HEIGHT // 4),
                     )
                 )
@@ -154,12 +154,12 @@ class Interface:
 
     def show_lives(self, player):
         for i in range(player.get_lives()):
-            self.__display.blit(player.get_life_image(), (30 + i * 48, 10))
+            self.__display.blit(player.life_image, (30 + i * 48, 10))
 
     def show_balls(self, balls):
         for i, ball in enumerate(balls):
             ball.set_position((200 + i * 50, 30))
-            self.__display.blit(ball.get_image(), ball.get_rect())
+            self.__display.blit(ball.image, ball.rect)
 
 
 class Player(pygame.sprite.Sprite):
@@ -193,80 +193,93 @@ class Player(pygame.sprite.Sprite):
     def get_image(self):
         return self.__image
 
+    def get_rect(self):
+        return self.__rect
+
+    def get_direction(self):
+        return self.__direction
+
+    def get_speed(self):
+        return self.__speed
+
+    def get_colors(self):
+        return self.__colors
+
+    def get_lives(self):
+        return self.__lives
+
+    def get_life_image(self):
+        return self.__life_image
+
     def get_score(self):
         return self.__score
+
+    def set_image(self, image):
+        self.__image = image
+
+    def set_rect(self, rect):
+        self.__rect = rect
+
+    def set_direction(self, direction):
+        self.__direction = direction
+
+    def set_speed(self, speed):
+        self.__speed = speed
+
+    def set_colors(self, colors):
+        self.__colors = colors
+
+    def set_lives(self, lives):
+        self.__lives = lives
+
+    def set_life_image(self, life_image):
+        self.__life_image = life_image
+
+    def set_score(self, score):
+        self.__score = score
+
+    image = property(get_image, set_image)
+    rect = property(get_rect, set_rect)
+    direction = property(get_direction, set_direction)
+    speed = property(get_speed, set_speed)
+    colors = property(get_colors, set_colors)
+    lives = property(get_lives, set_lives)
+    life_image = property(get_life_image, set_life_image)
+    score = property(get_score, set_score)
 
     def add_score(self, points):
         self.__score += points
         if self.__score < 0:
             self.__score = 0
 
-    def restart(self):
-        self.__score = 0
-        self.__colors = []
-        self.__lives = 3
-
-    def get_image_height(self):
-        return self.__image.get_height()
-
-    def get_rect(self):
-        return self.__rect
-
     def has_no_lives(self):
-        return self.get_lives() == 0
-
-    def count_colors(self):
-        return len(self.__colors)
+        return self.lives == 0
 
     def spawn_to_bottom(self):
-        self.__rect.center = (Var.WIDTH // 2, Var.HEIGHT - self.__image.get_height())
-
-    def get_colors(self):
-        return self.__colors
-
-    def catch_ball(self, ball):
-        self.__colors.append(ball)
+        self.rect.center = (Var.WIDTH // 2, Var.HEIGHT - self.__image.get_height())
 
     def has_completed_pattern(self, game):
-        return self.count_colors() >= game.count_pattern_colors()
-
-    def get_lives(self):
-        return self.__lives
-
-    def lose_life(self):
-        self.__lives -= 1
-
-    def get_life_image(self):
-        return self.__life_image
-
-    # Propiedades públicas requeridas por pygame.sprite.Group
-    @property
-    def image(self):
-        return self.__image
-
-    @property
-    def rect(self):
-        return self.__rect
+        return len(self.colors) >= game.count_pattern_colors()
 
     # Movimiento
     def update(self, dt):
         keys = pygame.key.get_pressed()
-        self.__direction.x = keys[pygame.K_d] - keys[pygame.K_a]
-        self.__direction.y = keys[pygame.K_s] - keys[pygame.K_w]
-        self.__direction = (
-            self.__direction.normalize() if self.__direction else self.__direction
+        self.direction.x = keys[pygame.K_d] - keys[pygame.K_a]
+        self.direction.y = keys[pygame.K_s] - keys[pygame.K_w]
+        self.direction = (
+            self.direction.normalize() if self.direction else self.direction
         )
-        self.__rect.center += self.__direction * self.__speed * dt
+        self.rect.center += self.direction * self.speed * dt
 
         # límites de pantalla
-        if self.__rect.bottom >= Var.HEIGHT:
-            self.__rect.bottom = Var.HEIGHT
-        if self.__rect.top <= Var.TOP_MARGIN:
-            self.__rect.top = Var.TOP_MARGIN
-        if self.__rect.left <= 0:
-            self.__rect.left = 0
-        if self.__rect.right >= Var.WIDTH:
-            self.__rect.right = Var.WIDTH
+        if self.rect.bottom >= Var.HEIGHT:
+            self.rect.bottom = Var.HEIGHT
+        if self.rect.top <= Var.TOP_MARGIN:
+            self.rect.top = Var.TOP_MARGIN
+        if self.rect.left <= 0:
+            self.rect.left = 0
+        if self.rect.right >= Var.WIDTH:
+            self.rect.right = Var.WIDTH
 
 
 class Ball(pygame.sprite.Sprite):
@@ -276,7 +289,7 @@ class Ball(pygame.sprite.Sprite):
     __direction = None
     __speed = None
     __color = None
-    __move = False
+    __move = None
 
     def __init__(self, surf, color, groups):
         super().__init__(groups)
@@ -285,84 +298,101 @@ class Ball(pygame.sprite.Sprite):
         self.__direction = pygame.math.Vector2(random.choice([-1, 1]), 1)
         self.__speed = Var.BALL_SPEED
         self.__color = color
-
-    # Métodos de acceso
-    def set__move(self, value):
-        self.__move = value
+        self.__move = False
 
     def get_image(self):
         return self.__image
 
-    def is_color(self, color):
-        return self.__color == color
-
     def get_rect(self):
         return self.__rect
+
+    def get_direction(self):
+        return self.__direction
+
+    def get_speed(self):
+        return self.__speed
 
     def get_color(self):
         return self.__color
 
+    def get_move(self):
+        return self.__move
+
+    def set_image(self, image):
+        self.__image = image
+
+    def set_rect(self, rect):
+        self.__rect = rect
+
+    def set_direction(self, direction):
+        self.__direction = direction
+
+    def set_speed(self, speed):
+        self.__speed = speed
+
+    def set_color(self, color):
+        self.__color = color
+
+    def set_move(self, move):
+        self.__move = move
+
+    image = property(get_image, set_image)
+    rect = property(get_rect, set_rect)
+    direction = property(get_direction, set_direction)
+    speed = property(get_speed, set_speed)
+    color = property(get_color, set_color)
+    move = property(get_move, set_move)
+
+    def is_color(self, color):
+        return self.color == color
+
     def set_position(self, pos):
-        self.__rect.center = pos
+        self.rect.center = pos
 
     def move_to_random_position(self):
-        self.__rect.center = (
+        self.rect.center = (
             random.randint(0, Var.WIDTH),
             random.randint(0, Var.HEIGHT),
         )
 
-    # Propiedades públicas requeridas por pygame.sprite.Group
-    @property
-    def image(self):
-        return self.__image
-
-    @property
-    def rect(self):
-        return self.__rect
-
-    # Movimiento
     def update(self, dt):
-        if self.__move:
-            self.__rect.center += self.__direction * self.__speed * dt
+        if self.move:
+            self.rect.center += self.direction * self.speed * dt
 
-            # rebotes contra bordes
-            if self.__rect.bottom >= Var.HEIGHT:
-                self.__direction.y *= -1
-                self.__rect.bottom = Var.HEIGHT
-            if self.__rect.top <= Var.TOP_MARGIN:
-                self.__direction.y *= -1
-                self.__rect.top = Var.TOP_MARGIN
-            if self.__rect.left <= 0:
-                self.__direction.x *= -1
-                self.__rect.left = 0
-            if self.__rect.right >= Var.WIDTH:
-                self.__direction.x *= -1
-                self.__rect.right = Var.WIDTH
+            if self.rect.bottom >= Var.HEIGHT:
+                self.direction.y *= -1
+                self.rect.bottom = Var.HEIGHT
+            if self.rect.top <= Var.TOP_MARGIN:
+                self.direction.y *= -1
+                self.rect.top = Var.TOP_MARGIN
+            if self.rect.left <= 0:
+                self.direction.x *= -1
+                self.rect.left = 0
+            if self.rect.right >= Var.WIDTH:
+                self.direction.x *= -1
+                self.rect.right = Var.WIDTH
 
 
 class Button(pygame.sprite.Sprite):
-    # Atributos privados
     __image = None
     __rect = None
 
     def __init__(self, image, x, y):
         super().__init__()
-        # 👇 ahora carga los botones desde sprite/
         self.__image = pygame.image.load(join("sprite", image)).convert_alpha()
         self.__rect = self.__image.get_rect(center=(x, y))
 
-    # Métodos de acceso
     def get_image(self):
         return self.__image
 
     def get_rect(self):
         return self.__rect
 
-    # Propiedades públicas requeridas por pygame.sprite.Group
-    @property
-    def image(self):
-        return self.__image
+    def set_image(self, image):
+        self.__image = image
 
-    @property
-    def rect(self):
-        return self.__rect
+    def set_rect(self, rect):
+        self.__rect = rect
+
+    image = property(get_image, set_image)
+    rect = property(get_rect, set_rect)

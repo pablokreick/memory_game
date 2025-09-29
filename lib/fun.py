@@ -115,7 +115,6 @@ def pattern_menu(display, game):
             display.blit(background, (0, 0))
             for i, ball in enumerate(lista):
                 x = start_x + i * spacing
-                # display.blit(ball.get_image(), (x, y))
                 ball.set_position((x, y))
             display.blit(number_surf, number_rect)
             lista.draw(display)
