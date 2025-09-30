@@ -50,6 +50,13 @@ def main():
     score_image = pygame.image.load(join("sprite", "puntos.png")).convert_alpha()
     score_rect = score_image.get_rect(topleft=(20, 70))
 
+    instructions_image = pygame.image.load(
+        join("sprite", "teclado.png")
+    ).convert_alpha()
+    instructions_rect = instructions_image.get_rect(
+        topleft=((Var.WIDTH - instructions_image.get_width()) // 2, 70)
+    )
+
     game = Game()
     play = f.menu(display)
 
@@ -59,7 +66,9 @@ def main():
     surface.blit(top_menu, top_menu_rect)
     surface.blit(level_image, level_rect)
     player = Player((all_sprites, player_sprite))
+
     COUNTDOWN_EVENT = pygame.USEREVENT + 1
+    INSTRUCTIONS_EVENT = pygame.USEREVENT + 2
 
     while play:
         player.colors = []
@@ -68,15 +77,21 @@ def main():
             topleft=(Var.WIDTH - level_number_image.get_width() - 20, 70)
         )
         surface.blit(level_number_image, level_number_rect)
+
         game.make_pattern((all_sprites, ball_sprites))
         play = f.pattern_menu(display, game)
         pygame.time.set_timer(COUNTDOWN_EVENT, 100, False)
+
         in_game = True
         player.rect.center = (Var.WIDTH // 2, Var.HEIGHT - player.image.get_height())
         game.set_balls_in_position()
-
+        show_instructions = False
+        if game.level == 1:
+            show_instructions = True
+            pygame.time.set_timer(INSTRUCTIONS_EVENT, Var.COUNTDOWN * 1000, False)
         while in_game and play:
             dt = clock.tick(Var.FPS) / 1000
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     play = False
@@ -84,6 +99,8 @@ def main():
                 elif event.type == COUNTDOWN_EVENT:
                     for ball in game.balls:
                         ball.move = True
+                elif event.type == INSTRUCTIONS_EVENT:
+                    show_instructions = False
             score_list = f.transform_int_to_list(player.score)
 
             collided_ball = game.check_collisions(player, ball_sprites)
@@ -152,6 +169,9 @@ def main():
             display.blit(score_image, score_rect)
             for i, value in enumerate(score_list):
                 display.blit(numbers[int(value)], (300 + i * 35, 70))
+            if show_instructions:
+                display.blit(instructions_image, instructions_rect)
+
             pygame.display.update()
 
     pygame.quit()
