@@ -18,7 +18,9 @@ def main():
 
     clock = pygame.time.Clock()
 
-    # Sonidos
+    # ---------------------------------------------------------------------------- #
+    #                               MÚSICA Y SONIDOS                               #
+    # ---------------------------------------------------------------------------- #
     sound_good = pygame.mixer.Sound(join("sounds", "bubble.mp3"))
     sound_wrong = pygame.mixer.Sound(join("sounds", "wrong.mp3"))
     sound_win = pygame.mixer.Sound(join("sounds", "win.mp3"))
@@ -28,7 +30,9 @@ def main():
     pygame.mixer.music.play(-1)
     pygame.mixer.music.set_volume(0.05)
 
-    # Grupos de sprites
+    # ---------------------------------------------------------------------------- #
+    #                            SPRITES E IMPORTACIONES                           #
+    # ---------------------------------------------------------------------------- #
     player_sprite = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
     ball_sprites = pygame.sprite.Group()
@@ -57,9 +61,11 @@ def main():
         topleft=((Var.WIDTH - instructions_image.get_width()) // 2, 70)
     )
 
+    # ---------------------------------------------------------------------------- #
     game = Game()
     play = f.menu(display, clock)
 
+    # superficie
     surface = pygame.Surface((Var.WIDTH, Var.HEIGHT))
 
     surface.blit(background, background_rect)
@@ -67,9 +73,13 @@ def main():
     surface.blit(level_image, level_rect)
     player = Player((all_sprites, player_sprite))
 
+    # ---------------------------------- EVENTOS --------------------------------- #
     COUNTDOWN_EVENT = pygame.USEREVENT + 1
     INSTRUCTIONS_EVENT = pygame.USEREVENT + 2
 
+    # ---------------------------------------------------------------------------- #
+    #                                LOOP PRINCIPAL                                #
+    # ---------------------------------------------------------------------------- #
     while play:
         player.colors = []
         level_number_image = numbers[game.level]
@@ -115,7 +125,7 @@ def main():
                         player.score = player.score + 10
                         if player.has_completed_pattern(game):
                             sound_win.play()
-                            if game.level >= 9:
+                            if game.level >= Var.MAX_LEVEL:
                                 play = f.menu_congratulations(display, clock)
                                 if play:
                                     in_game = False

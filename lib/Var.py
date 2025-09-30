@@ -9,6 +9,7 @@ CAR_SPEED = 300
 INITIAL_BALLS = 2
 INITIAL_BALL_SPEED = 100
 COUNTDOWN = 3
+MAX_LEVEL = 9
 
 # Colores de contexto (usan la paleta de Color.py)
 MENU_BG_COLOR = Color.GREEN
