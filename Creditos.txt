@@ -1,0 +1,15 @@
+Nombre del juego: Bubble Bubble - juego de memoria
+
+Desarrolladores:
+    Italiano, Bruno Mijael
+    Kreick, Pablo Esteban
+
+Gráficos:
+    Todos los dibujos son de nuestra autoría exclusivos para el juego Bubble Bubble
+
+Sonidos:
+    Burbujas reventando: Sound Effect by Universfield from Pixabay
+    Sonido de error: Sound Effect by freesound_community from Pixabay
+    Sonido al ganar: Sound Effect by freesound_community from Pixabay
+    Sonido al perder: Sound Effect by Universfield from Pixabay
+

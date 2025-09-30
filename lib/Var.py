@@ -3,7 +3,7 @@ import lib.Color as Color
 WIDTH = 1280
 HEIGHT = 720
 FPS = 30
-TITLE = "Memory Game"
+TITLE = "Bubble Bubble - Juego de memoria"
 TOP_MARGIN = 60
 CAR_SPEED = 300
 INITIAL_BALLS = 2
