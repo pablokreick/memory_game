@@ -58,7 +58,7 @@ def main():
     )
 
     game = Game()
-    play = f.menu(display)
+    play = f.menu(display, clock)
 
     surface = pygame.Surface((Var.WIDTH, Var.HEIGHT))
 
@@ -79,7 +79,7 @@ def main():
         surface.blit(level_number_image, level_number_rect)
 
         game.make_pattern((all_sprites, ball_sprites))
-        play = f.pattern_menu(display, game)
+        play = f.pattern_menu(display, game, clock)
         pygame.time.set_timer(COUNTDOWN_EVENT, 100, False)
 
         in_game = True
@@ -116,7 +116,7 @@ def main():
                         if player.has_completed_pattern(game):
                             sound_win.play()
                             if game.level >= 9:
-                                play = f.menu_congratulations(display)
+                                play = f.menu_congratulations(display, clock)
                                 if play:
                                     in_game = False
                                     game.level = 1
@@ -128,7 +128,7 @@ def main():
                                     player.score = 0
                                     player.colors = []
                             else:
-                                play = f.final_menu(display, True)
+                                play = f.final_menu(display, True, clock)
                                 if play:
                                     game.level = game.level + 1
                                     game.balls_quantity = game.balls_quantity + 1
@@ -141,7 +141,7 @@ def main():
                         player.score = player.score - 1
                         if player.has_no_lives():
                             sound_fail.play()
-                            play = f.final_menu(display, False)
+                            play = f.final_menu(display, False, clock)
                             if play:
                                 in_game = False
                                 game.level = 1

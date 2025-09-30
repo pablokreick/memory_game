@@ -9,7 +9,7 @@ def transform_int_to_list(score):
     return list(str(score))
 
 
-def menu(display):
+def menu(display, clock):
     repeat = True
     play = False
     background = pygame.image.load(join("sprite", "main.png")).convert_alpha()
@@ -20,6 +20,7 @@ def menu(display):
     lista = pygame.sprite.Group(btn_play, btn_quit)
 
     while repeat:
+        clock.tick(Var.FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 play = False
@@ -41,7 +42,7 @@ def menu(display):
     return play
 
 
-def final_menu(display, winner):
+def final_menu(display, winner, clock):
     repeat = True
     play = False
     background = pygame.image.load(
@@ -57,6 +58,7 @@ def final_menu(display, winner):
     lista = pygame.sprite.Group(btn_play, btn_quit)
 
     while repeat:
+        clock.tick(Var.FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 play = False
@@ -76,7 +78,7 @@ def final_menu(display, winner):
     return play
 
 
-def pattern_menu(display, game):
+def pattern_menu(display, game, clock):
     play = True
     time = pygame.time.get_ticks()
     repeat = True
@@ -88,7 +90,7 @@ def pattern_menu(display, game):
     lista = pygame.sprite.Group(ball for ball in game.balls)
 
     while repeat:
-
+        clock.tick(Var.FPS)
         current_time = pygame.time.get_ticks()
         seconds = (current_time - time) // 1000
         for event in pygame.event.get():
@@ -118,7 +120,7 @@ def pattern_menu(display, game):
     return play
 
 
-def menu_congratulations(display):
+def menu_congratulations(display, clock):
     repeat = True
     play = False
     background = pygame.image.load(join("sprite", "final.png")).convert_alpha()
@@ -130,6 +132,7 @@ def menu_congratulations(display):
     lista = pygame.sprite.Group(btn_play, btn_quit)
 
     while repeat:
+        clock.tick(Var.FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 play = False
