@@ -10,12 +10,14 @@ class Game(pygame.sprite.Sprite):
     __balls_quantity = None
     __pattern = None
     __balls = None
+    __ball_speed = None
 
     def __init__(self):
         self.__level = 1
         self.__balls_quantity = 2
         self.__pattern = []
         self.__balls = []
+        self.__ball_speed = Var.INITIAL_BALL_SPEED
         self.__ball_images = {
             "blue": pygame.image.load(join("sprite", "ball-blue.png")).convert_alpha(),
             "lightblue": pygame.image.load(
@@ -48,6 +50,9 @@ class Game(pygame.sprite.Sprite):
     def get_balls(self):
         return self.__balls
 
+    def get_ball_speed(self):
+        return self.__ball_speed
+
     def set_ball_images(self, ball_images):
         self.__ball_images = ball_images
 
@@ -63,20 +68,24 @@ class Game(pygame.sprite.Sprite):
     def set_balls(self, balls):
         self.__balls = balls
 
+    def set_ball_speed(self, speed):
+        self.__ball_speed = speed
+
     ball_images = property(get_ball_images, set_ball_images)
     level = property(get_level, set_level)
     balls_quantity = property(get_balls_quantity, set_balls_quantity)
     pattern = property(get_pattern, set_pattern)
     balls = property(get_balls, set_balls)
+    ball_speed = property(get_ball_speed, set_ball_speed)
 
     def check_collisions(self, objetive, sprite):
         return pygame.sprite.spritecollide(
             objetive, sprite, False, pygame.sprite.collide_mask
         )
 
-    def create_ball(self, color_name, sprites):
+    def create_ball(self, speed, color_name, sprites):
         surf = self.ball_images[color_name]
-        ball = Ball(surf, color_name, sprites)
+        ball = Ball(surf, speed, color_name, sprites)
         return ball
 
     def make_pattern(self, sprites):
@@ -86,7 +95,7 @@ class Game(pygame.sprite.Sprite):
             color = random.choice(list(self.ball_images.keys()))
             self.pattern.append(color)
         for color in self.pattern:
-            self.balls.append(self.create_ball(color, sprites))
+            self.balls.append(self.create_ball(self.ball_speed, color, sprites))
 
     def set_balls_in_position(self):
         balls_sprites = pygame.sprite.Group()
@@ -108,7 +117,6 @@ class Game(pygame.sprite.Sprite):
 
 
 class Player(pygame.sprite.Sprite):
-    # Atributos privados declarados fuera del constructor
     __image = None
     __rect = None
     __direction = None
@@ -120,13 +128,12 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self, groups):
         super().__init__(groups)
-        # 👇 ahora carga car.png desde sprite/
         self.__image = pygame.image.load(join("sprite", "car.png")).convert_alpha()
         self.__rect = self.__image.get_rect(
             center=(Var.WIDTH // 2, Var.HEIGHT - self.__image.get_height())
         )
         self.__direction = pygame.math.Vector2(0, 0)
-        self.__speed = Var.INITIAL_SPEED
+        self.__speed = Var.CAR_SPEED
         self.__colors = []
         self.__lives = 3
         self.__score = 0
@@ -134,7 +141,6 @@ class Player(pygame.sprite.Sprite):
             join("sprite", "life.png")
         ).convert_alpha()
 
-    # Métodos de acceso y modificación
     def get_image(self):
         return self.__image
 
@@ -201,17 +207,19 @@ class Player(pygame.sprite.Sprite):
     def has_completed_pattern(self, game):
         return len(self.colors) >= len(game.pattern)
 
-    # Movimiento
     def update(self, dt):
         keys = pygame.key.get_pressed()
-        self.direction.x = keys[pygame.K_d] - keys[pygame.K_a]
-        self.direction.y = keys[pygame.K_s] - keys[pygame.K_w]
+        self.direction.x = (keys[pygame.K_d] or keys[pygame.K_RIGHT]) - (
+            keys[pygame.K_a] or keys[pygame.K_LEFT]
+        )
+        self.direction.y = (keys[pygame.K_s] or keys[pygame.K_DOWN]) - (
+            keys[pygame.K_w] or keys[pygame.K_UP]
+        )
         self.direction = (
             self.direction.normalize() if self.direction else self.direction
         )
         self.rect.center += self.direction * self.speed * dt
 
-        # límites de pantalla
         if self.rect.bottom >= Var.HEIGHT:
             self.rect.bottom = Var.HEIGHT
         if self.rect.top <= Var.TOP_MARGIN:
@@ -223,7 +231,6 @@ class Player(pygame.sprite.Sprite):
 
 
 class Ball(pygame.sprite.Sprite):
-    # Atributos privados
     __image = None
     __rect = None
     __direction = None
@@ -231,12 +238,12 @@ class Ball(pygame.sprite.Sprite):
     __color = None
     __move = None
 
-    def __init__(self, surf, color, groups):
+    def __init__(self, surf, speed, color, groups):
         super().__init__(groups)
         self.__image = surf
         self.__rect = self.__image.get_rect()
         self.__direction = pygame.math.Vector2(random.choice([-1, 1]), 1)
-        self.__speed = Var.BALL_SPEED
+        self.__speed = speed
         self.__color = color
         self.__move = False
 

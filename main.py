@@ -5,7 +5,6 @@ from lib.Core import Player, Game
 
 # Nuestros módulos
 import lib.Var as Var
-import lib.Color as Color
 import lib.fun as f
 
 
@@ -13,8 +12,9 @@ def main():
     pygame.init()
 
     # Configuración de la ventana
-    display = pygame.display.set_mode((Var.WIDTH, Var.HEIGHT))
     pygame.display.set_caption(Var.TITLE)
+    pygame.display.set_icon(pygame.image.load(join("sprite", "car_icon.png")))
+    display = pygame.display.set_mode((Var.WIDTH, Var.HEIGHT))
 
     clock = pygame.time.Clock()
 
@@ -53,13 +53,11 @@ def main():
     game = Game()
     play = f.menu(display)
 
-    # Crear la superficie de estáticos
-    static_surface = pygame.Surface((Var.WIDTH, Var.HEIGHT), pygame.SRCALPHA)
+    surface = pygame.Surface((Var.WIDTH, Var.HEIGHT))
 
-    # Dibujar todo sobre esa superficie solo una vez
-    static_surface.blit(background, background_rect)
-    static_surface.blit(top_menu, top_menu_rect)
-    static_surface.blit(level_image, level_rect)
+    surface.blit(background, background_rect)
+    surface.blit(top_menu, top_menu_rect)
+    surface.blit(level_image, level_rect)
     player = Player((all_sprites, player_sprite))
     COUNTDOWN_EVENT = pygame.USEREVENT + 1
 
@@ -69,7 +67,7 @@ def main():
         level_number_rect = level_number_image.get_rect(
             topleft=(Var.WIDTH - level_number_image.get_width() - 20, 70)
         )
-        static_surface.blit(level_number_image, level_number_rect)
+        surface.blit(level_number_image, level_number_rect)
         game.make_pattern((all_sprites, ball_sprites))
         play = f.pattern_menu(display, game)
         pygame.time.set_timer(COUNTDOWN_EVENT, 100, False)
@@ -105,7 +103,7 @@ def main():
                                 if play:
                                     in_game = False
                                     game.level = 1
-                                    Var.BALL_SPEED = 100
+                                    game.ball_speed = Var.INITIAL_BALL_SPEED
                                     game.balls_quantity = Var.INITIAL_BALLS
                                     for ball in ball_sprites:
                                         ball.kill()
@@ -117,7 +115,7 @@ def main():
                                 if play:
                                     game.level = game.level + 1
                                     game.balls_quantity = game.balls_quantity + 1
-                                    Var.BALL_SPEED += 5
+                                    game.ball_speed += 5
                                     in_game = False
                     else:
                         ball.move_to_random_position()
@@ -130,7 +128,7 @@ def main():
                             if play:
                                 in_game = False
                                 game.level = 1
-                                Var.BALL_SPEED = 100
+                                game.ball_speed = Var.INITIAL_BALL_SPEED
                                 game.balls_quantity = Var.INITIAL_BALLS
                                 for ball in ball_sprites:
                                     ball.kill()

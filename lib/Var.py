@@ -5,9 +5,9 @@ HEIGHT = 720
 FPS = 30
 TITLE = "Memory Game"
 TOP_MARGIN = 60
-INITIAL_SPEED = 300
-BALL_SPEED = 100
+CAR_SPEED = 300
 INITIAL_BALLS = 2
+INITIAL_BALL_SPEED = 100
 COUNTDOWN = 3
 
 # Colores de contexto (usan la paleta de Color.py)

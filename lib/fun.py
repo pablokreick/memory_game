@@ -1,5 +1,4 @@
 import pygame
-import math
 import lib.Var as Var
 import lib.Color as Color
 import lib.Core as c
@@ -13,9 +12,7 @@ def transform_int_to_list(score):
 def menu(display):
     repeat = True
     play = False
-    background = pygame.image.load(
-        join("sprite", "main.png")
-    ).convert_alpha()  # 👈 cambiado a sprite/
+    background = pygame.image.load(join("sprite", "main.png")).convert_alpha()
 
     # Botones
     btn_play = c.Button("btn_play.png", Var.WIDTH // 2, Var.HEIGHT // 2)
@@ -51,7 +48,6 @@ def final_menu(display, winner):
         join("sprite", "winner.png" if winner else "looser.png")
     ).convert_alpha()
 
-    # Botones
     btn_play = c.Button(
         "btn_again_winner.png" if winner else "btn_again.png",
         Var.WIDTH // 2,
@@ -107,10 +103,9 @@ def pattern_menu(display, game):
                 center=(Var.WIDTH // 2, Var.HEIGHT // 2 + 150)
             )
             spacing = 50
-            total_width = len(game.balls) * spacing
-            # start_x = Var.WIDTH // 2 - total_width // 2 + spacing // 2
+            total_width = (len(game.balls) - 1) * spacing
             start_x = Var.WIDTH // 2 - total_width // 2
-            y = Var.HEIGHT // 2 - 50
+            y = Var.HEIGHT // 2
 
             display.blit(background, (0, 0))
             for i, ball in enumerate(lista):
@@ -128,7 +123,6 @@ def menu_congratulations(display):
     play = False
     background = pygame.image.load(join("sprite", "final.png")).convert_alpha()
 
-    # Botones
     btn_play = c.Button("btn_final.png", Var.WIDTH // 2 + 150, Var.HEIGHT // 2)
     btn_quit = c.Button(
         "btn_quit_final.png", Var.WIDTH // 2 + 150, Var.HEIGHT // 2 + 120
@@ -148,7 +142,6 @@ def menu_congratulations(display):
                     play = False
                     repeat = False
 
-        # Dibujo
         display.fill(Color.GREEN)
         display.blit(background, (0, 0))
         lista.draw(display)
